@@ -5,8 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "google-adk>=1.22.0",
-    "langchain-google-vertexai>=3.2.2",
-    "litellm>=1.80.13",
-    "requests>=2.32.5",
+    "google-adk>=1.28.1",
+    "litellm>=1.83.1",
+    "requests>=2.33.1",
 ]
