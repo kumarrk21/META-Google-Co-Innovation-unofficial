@@ -1,0 +1,19 @@
+[project]
+name = "vogue-concierge"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "argparse>=1.4.0",
+    "google-adk[extensions]>=1.29.0",
+    "honcho>=2.0.0",
+    "pillow>=12.2.0",
+    "python-dotenv>=1.0.1",
+    "requests>=2.33.1",
+]
+
+[tool.uv.workspace]
+members = [
+    "vogue_concierge_app/backend",
+]

@@ -1,0 +1,12 @@
+agent_engine_sa:
+  - roles/aiplatform.viewer
+  - roles/bigquery.dataViewer
+  - roles/bigquery.jobUser
+  - roles/storage.objectViewer
+cloud_run_sa:
+  - roles/aiplatform.viewer
+  - roles/bigquery.dataViewer
+  - roles/bigquery.jobUser
+  - roles/storage.objectViewer
+  - roles/iam.serviceAccountTokenCreator
+
