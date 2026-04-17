@@ -91,6 +91,7 @@ def build_next_spa(parser: YAMLParser) -> None:
     api_folder = parser.API_FOLDER
     command = f"""
         cd {ui_folder}
+        npm install
         npx next build
         cp -R out/ ../../{api_folder}/out
     """
@@ -126,29 +127,41 @@ def write_agent_env_file(parser: YAMLParser) -> None:
 # Get Agent Engine ID
 # ----------------------------------------------------- #
 def get_agent_engine_id(parser: YAMLParser) -> str|None:
-    project_number = parser.PROJECT_NUMBER
-    region = parser.AGENT_ENGINE_REGION
-    deployment_result_file = f"{parser.DEPLOY_RESULTS_FOLDER}/{parser.AE_DEPLOY_RESULTS_FILE}"
+    ae_id = ""
+    try:
+        project_number = parser.PROJECT_NUMBER
+        region = parser.AGENT_ENGINE_REGION
+        deployment_result_file = f"{parser.DEPLOY_RESULTS_FOLDER}/{parser.AE_DEPLOY_RESULTS_FILE}"
 
-    pattern = f"Created agent engine: projects/{project_number}/locations/{region}/reasoningEngines/"
-    ae_id = get_data_from_output(deployment_result_file, pattern)
-    if not ae_id:
-        pattern = f"Updated agent engine: projects/{project_number}/locations/{region}/reasoningEngines/"
+        pattern = f"Created agent engine: projects/{project_number}/locations/{region}/reasoningEngines/"
         ae_id = get_data_from_output(deployment_result_file, pattern)
-    if not ae_id:
-        return None
-    ae_id = ae_id.replace(pattern, "")
-    ae_id = ae_id.replace("')","")
+        if not ae_id:
+            pattern = f"Updated agent engine: projects/{project_number}/locations/{region}/reasoningEngines/"
+            ae_id = get_data_from_output(deployment_result_file, pattern)
+        if not ae_id:
+            return None
+        ae_id = ae_id.replace(pattern, "")
+        ae_id = ae_id.replace("')","")
+    except Exception as e:
+        print(f"Error while trying to get the agent ID {e}")
+        ae_id = ""
+
     return ae_id
 
 # ----------------------------------------------------- #
 # Get CloudRun Url
 # ----------------------------------------------------- #
 def get_cloud_run_url(deployment_result_file:str) -> str|None:
-    pattern = f"Service URL: "
-    url = get_data_from_output(deployment_result_file, pattern)
-    url = url.replace(pattern, "")
-    url = url.replace("')","")
+    url = ""
+    try:
+        pattern = f"Service URL: "
+        url = get_data_from_output(deployment_result_file, pattern)
+        url = url.replace(pattern, "")
+        url = url.replace("')","")
+    except Exception as e:
+        print(f"Error while trying to get the Cloud Run service url {e}")
+        url = ""
+
     return url
 
 # ----------------------------------------------------- #
@@ -278,8 +291,10 @@ def write_files_to_local(file_path: str, content: Any, type: str):
 def get_data_from_output(file_path: str, pattern: str):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     full_file_path = dir_path + "/" + file_path
-    with open(full_file_path, 'r') as f:
-        for line in f:
-            if pattern in line:
-                return line.strip()
-    return None
+    try:
+        with open(full_file_path, 'r') as f:
+            for line in f:
+                if pattern in line:
+                    return line.strip()
+    except:
+        return None

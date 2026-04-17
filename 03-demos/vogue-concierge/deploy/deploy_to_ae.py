@@ -45,13 +45,13 @@ def deploy(parser: YAMLParser) -> None:
 
     ae_id = utils.get_agent_engine_id(parser)
 
-
+    
     if ae_id:
+        
         parser.deployed_resources["agent_engine_id"] = ae_id
         parser.setResources()
         utils.write_api_env_file(parser)
-        
-
+    
 # ----------------------------------------------------- #
 # Update auth for the agent engine service accuont
 # ----------------------------------------------------- #
@@ -61,12 +61,15 @@ def update_ae_sa_auth(parser: YAMLParser) -> None:
     agent_engine_sa = parser.AGENT_ENGINE_SA
     required_auth = parser.required_auth['agent_engine_sa']
 
+
     commands = []
     for role in required_auth:
         commands.append(f'gcloud projects add-iam-policy-binding {project_id} --member="serviceAccount:{agent_engine_sa}" --role="{role}" --no-user-output-enabled')
 
     command = format("\n".join(commands))
-    
-    utils.call_cli(command,AUTH_RESULT_FILE,AUTH_PROCESS)
+
+    auth_result_file = f"{parser.DEPLOY_RESULTS_FOLDER}/{AUTH_RESULT_FILE}"
+
+    utils.call_cli(command,auth_result_file,AUTH_PROCESS)
 
 

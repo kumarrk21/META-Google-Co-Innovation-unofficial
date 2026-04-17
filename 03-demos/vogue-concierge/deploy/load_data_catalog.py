@@ -93,7 +93,7 @@ def generate_and_upload_images(parser:YAMLParser, catalog: list) -> List:
                     product["image_url"] = ""
                     print(f"           Error uploading image {e}")
                     
-            else:
+            elif parser.AGENT_DS_IMAGEGEN_USE == "TRUE":
                 print(f"  [{i+1}/30] Generating image for {sku}: {product['name']}")
                 image = generate_image(parser, product["image_prompt"])
 

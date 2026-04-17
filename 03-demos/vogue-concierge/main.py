@@ -27,6 +27,7 @@ def process(option:str) -> None:
             deploy_to_ae.deploy(parser)
         case "4":  # Deploy app to CloudRun
             deploy_to_cr.update_cr_sa_auth(parser=parser)
+            deploy_to_cr.update_ce_sa_auth(parser=parser)
             deploy_to_cr.deploy(parser=parser)
             pass
         case "5":  # Test just the agent locally
@@ -47,6 +48,9 @@ def process(option:str) -> None:
         case "10": # Proxy Cloud run local
             utils.proxy_cloud_run_locally(parser=parser)
             pass
+        case "98": # debug purposes
+            print(parser.API_NAME)
+            pass
         case "99": # Delete deployed resources
             delete_resources.main(parser=parser)
             pass    
@@ -60,7 +64,7 @@ def process(option:str) -> None:
 def main() -> None:
     # Arg Parser
     parser = argparse.ArgumentParser(description = "Demo Deployment helper")
-    available_options = ["1","2","3","4","5","6","7","8","9","10","99"]
+    available_options = ["1","2","3","4","5","6","7","8","9","10","98","99"]
 
     parser.add_argument(
         "-o", "--option", help="What do you want to deploy",

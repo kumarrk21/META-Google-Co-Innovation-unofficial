@@ -61,7 +61,7 @@ Before you begin, ensure you have the following:
 #### **Google Cloud Resources**
 
 * A [**Google Cloud Project**](https://console.cloud.google.com/projectselector2/home/dashboard) with [billing](https://docs.cloud.google.com/billing/docs/how-to/verify-billing-enabled#confirm_billing_is_enabled_on_a_project) enabled.  
-* Enabled APIs**:**   
+* **Enabled APIs:**
   * [**Vertex AI API**](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com)   
   * [**Compute Engine API**](https://console.cloud.google.com/flows/enableapi?apiid=compute.googleapis.com)  
   * [**Resource Manager API**](https://console.cloud.google.com/flows/enableapi?apiid=cloudresourcemanager.googleapis.com)  
@@ -72,18 +72,15 @@ Before you begin, ensure you have the following:
   * [**Cloud Run API**](https://console.cloud.google.com/flows/enableapi?apiid=run.googleapis.com)  
   * [**Cloud Functions API**](https://console.cloud.google.com/flows/enableapi?apiid=cloudfunctions.googleapis.com)  
   * [**IAP API**](https://console.cloud.google.com/flows/enableapi?apiid=iap.googleapis.com)  
-* Model Access**:**   
-  * [**Llama 4 API Service**](https://console.cloud.google.com/vertex-ai/publishers/meta/model-garden/llama-4-maverick-17b-128e-instruct-maas) (MaaS) enabled 
-
-  or	
-
-  * [**Llama 3.3 API Service**](https://console.cloud.google.com/vertex-ai/publishers/meta/model-garden/llama-3.3-70b-instruct-maas) (MaaS) enabled  
-* Service Accounts:  
+* **Model Access:**   
+  * [**Llama 4 API Service**](https://console.cloud.google.com/vertex-ai/publishers/meta/model-garden/llama-4-maverick-17b-128e-instruct-maas) (MaaS) enabled or	 [**Llama 3.3 API Service**](https://console.cloud.google.com/vertex-ai/publishers/meta/model-garden/llama-3.3-70b-instruct-maas) (MaaS) enabled  
+* **Service Accounts:**  
   * [**New**](https://docs.cloud.google.com/iam/docs/service-accounts-create) (Recommended) or existing service account for Cloud Run
 
 #### **Local Development Environment**
 
-* **uv** [installed](https://docs.astral.sh/uv/getting-started/installation/) and Python 3.10+ [installed using uv](https://docs.astral.sh/uv/guides/install-python/)  
+* **uv** [installed](https://docs.astral.sh/uv/getting-started/installation/) and Python 3.10+ [installed using uv](https://docs.astral.sh/uv/guides/install-python/)
+* **nvm** [installed](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating) and Nodejs v22.19.0+ [installed using nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#usage)
 * **gcloud CLI** [installed](https://docs.cloud.google.com/sdk/docs/install-sdk) and [authenticated](https://docs.cloud.google.com/sdk/docs/install-sdk#initializing-the-cli).
 
 ### **Demo Deployment**
@@ -213,7 +210,11 @@ Once the agent has started, navigate to [http://localhost:8000](http://localhost
 
 #### **\#5: Deploy Agent to Agent Engine**
 
-In this step, you will deploy the agent to the agent engine.
+In this step, you will deploy the agent to the agent engine. Also, this step automatically grants the following roles (see file deploy/required.auth.yml for more details) to the agent engine service account - PROJECT_NUMBER@gcp-sa-aiplatform-re.iam.gserviceaccount.com
+* *roles/aiplatform.viewer*
+* *roles/bigquery.dataViewer*
+* *roles/bigquery.jobUser*
+* *roles/storage.objectViewer*
 
 ```shell
 
@@ -223,7 +224,17 @@ uv run main.py -o 3
 
 #### **\#6: Deploy the web app to Cloud Run**
 
-In this step, you will deploy the web app to Cloud Run
+In this step, you will deploy the web app to Cloud Run. Also, this step automatically grants the following roles (see file deploy/required.auth.yml for more details) to the cloud run service account you provide in the config
+* *roles/aiplatform.viewer*
+* *roles/bigquery.dataViewer*
+* *roles/bigquery.jobUser*
+* *roles/storage.objectViewer*
+* *roles/iam.serviceAccountTokenCreator*
+
+Further, since Cloud Build is used to deploy the Cloud Run service, this step also  automatically grants the following roles (see file deploy/required.auth.yml for more details) to the compute engine default service account - PROJECT_NUMBER-compute@developer.gserviceaccount.com
+* *roles/storage.objectViewer*
+* *roles/logging.logWriter*
+* *roles/artifactregistry.writer*
 
 ```shell
 

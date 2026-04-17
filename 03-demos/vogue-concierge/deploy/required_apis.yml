@@ -2,6 +2,7 @@
 - storage.googleapis.com
 - bigquery.googleapis.com
 - aiplatform.googleapis.com
+- vectorsearch.googleapis.com
 - discoveryengine.googleapis.com
 - cloudbuild.googleapis.com
 - run.googleapis.com

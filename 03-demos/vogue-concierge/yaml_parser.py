@@ -33,7 +33,10 @@ class YAMLParser:
         self.config = self._load_yaml(self.config_file_path)
 
         self.deployed_resources_file_path = Path(self._get_resources_file())
-        self.deployed_resources = self._load_yaml(self.deployed_resources_file_path)
+        try:
+            self.deployed_resources = self._load_yaml(self.deployed_resources_file_path)
+        except:
+            self.deployed_resources = {}
 
         self.required_auth_file_path = Path(self._get_auth_file())    
         self.required_auth = self._load_yaml(self.required_auth_file_path)
@@ -58,6 +61,7 @@ class YAMLParser:
         self.AGENT_DS_DATASET_LOC = self._getConfig('agent.datastores.bq.dataset_location')
         self.AGENT_DS_INVENTORY_TABLE_NAME = self._getConfig('agent.datastores.bq.inventory_table_name')
         self.AGENT_DS_LOYALTY_TABLE_NAME = self._getConfig('agent.datastores.bq.loyalty_table_name')
+        self.AGENT_DS_IMAGEGEN_USE = self._getConfig('agent.datastores.imagegen.use')
         self.AGENT_DS_IMAGEGEN_MODEL_ID = self._getConfig('agent.datastores.imagegen.model_id')
         self.AGENT_DS_IMAGEGEN_REGION = self._getConfig('agent.datastores.imagegen.region')
         self.AGENT_DS_STORAGE_BUCKET_NAME = f"{self.PROJECT_NUMBER}-{self._getConfig('agent.datastores.storage.bucket_name')}"
@@ -78,7 +82,7 @@ class YAMLParser:
         self.UI_FOLDER = self._getConfig('ui.folder')
 
         self.AGENT_ENGINE_SA = f"service-{self.PROJECT_NUMBER}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
-        # self.AGENT_ENGINE_SA = self._getConfig('global.agent_engine_sa')
+        self.COMPUTE_ENGINE_SA = f"{self.PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
         self.CLOUD_RUN_SA = self._getConfig('global.cloud_run_sa')
         self.CLOUD_RUN_USE_IAP = self._getConfig('cloud_run.use_iap')
     

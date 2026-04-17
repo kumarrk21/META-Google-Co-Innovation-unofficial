@@ -14,21 +14,25 @@ from yaml_parser import YAMLParser
 # Create RAG Corpus
 #------------------------------------------------------------------------------------#
 def create_corpus(parser: YAMLParser) -> rag.RagCorpus:
-    vertexai.init(project=parser.PROJECT_ID, location=parser.AGENT_DS_RAG_REGION)
-    existing = rag.list_corpora()
-    for corpus in existing:
-        if corpus.display_name == parser.AGENT_DS_RAG_CORPUS_NAME:
-            print(f"Corpus '{parser.AGENT_DS_RAG_CORPUS_NAME}' already exists: {corpus.name}")
-            return corpus
-    
+    try:
+        vertexai.init(project=parser.PROJECT_ID, location=parser.AGENT_DS_RAG_REGION)
+        existing = rag.list_corpora()
+        for corpus in existing:
+            if corpus.display_name == parser.AGENT_DS_RAG_CORPUS_NAME:
+                print(f"Corpus '{parser.AGENT_DS_RAG_CORPUS_NAME}' already exists: {corpus.name}")
+                return corpus
+        
 
-    # Create new corpus
-    corpus = rag.create_corpus(
-        display_name=parser.AGENT_DS_RAG_CORPUS_NAME,
-        description=parser.AGENT_DS_RAG_CORPUS_DESC,
-    )
-    print(f"Created corpus: {corpus.name}")
-    return corpus
+        # Create new corpus
+        corpus = rag.create_corpus(
+            display_name=parser.AGENT_DS_RAG_CORPUS_NAME,
+            description=parser.AGENT_DS_RAG_CORPUS_DESC,
+        )
+        print(f"Created corpus: {corpus.name}")
+        return corpus
+    except Exception as e:
+        print(f"Error in creating RAG Corpus - {e}")
+        return None
 
 #------------------------------------------------------------------------------------#
 # Prepare Catalog for Rag and upload it to GCS
@@ -85,57 +89,64 @@ def upload_trend_report_for_rag(parser:YAMLParser, bucket:storage.Bucket) -> str
 # Injest files
 #------------------------------------------------------------------------------------#
 def ingest_files(parser: YAMLParser, corpus:rag.RagCorpus) -> ImportRagFilesResponse:
-    client = storage.Client(project=parser.PROJECT_ID)
-    bucket = client.bucket(parser.AGENT_DS_STORAGE_BUCKET_NAME)
+    try:
+        client = storage.Client(project=parser.PROJECT_ID)
+        bucket = client.bucket(parser.AGENT_DS_STORAGE_BUCKET_NAME)
 
-    gcs_rag_uris = []
+        gcs_rag_uris = []
 
-    gcs_rag_uris.append(upload_catalog_for_rag(parser, bucket))
-    gcs_rag_uris.append(upload_trend_report_for_rag(parser, bucket))
+        gcs_rag_uris.append(upload_catalog_for_rag(parser, bucket))
+        gcs_rag_uris.append(upload_trend_report_for_rag(parser, bucket))
 
-    response = rag.import_files(
-        corpus_name=corpus.name,
-        paths=gcs_rag_uris,
-        transformation_config=rag.TransformationConfig(
-            chunking_config=rag.ChunkingConfig(
-                chunk_size=512,
-                chunk_overlap=100,
+        response = rag.import_files(
+            corpus_name=corpus.name,
+            paths=gcs_rag_uris,
+            transformation_config=rag.TransformationConfig(
+                chunking_config=rag.ChunkingConfig(
+                    chunk_size=512,
+                    chunk_overlap=100,
+                ),
             ),
-        ),
-    )
+        )
 
-    print(f"RAG ingestion complete: {response.imported_rag_files_count} files imported")
-    return response
+        print(f"RAG ingestion complete: {response.imported_rag_files_count} files imported")
+        return response
+    except Exception as e:
+        print(f"Error in RAG ingestion - {e} ")
+        return None
 
 #------------------------------------------------------------------------------------#
 # Test RAG with a simple query
 #------------------------------------------------------------------------------------#
 def test_rag_query(corpus:rag.RagCorpus) -> None:
     
-    query_text = "summer wedding dress"
-    
-    print("\nTesting RAG query: '{query_text}'")
+    try:
+        query_text = "summer wedding dress"
+        
+        print("\nTesting RAG query: '{query_text}'")
 
-    rag_retrieval_config = rag.RagRetrievalConfig(
-        top_k=3,
-        filter=rag.Filter(vector_distance_threshold=0.5),
+        rag_retrieval_config = rag.RagRetrievalConfig(
+            top_k=3,
+            filter=rag.Filter(vector_distance_threshold=0.5),
+        )
+        
+        response = rag.retrieval_query(
+            rag_resources=[
+                rag.RagResource(
+                    rag_corpus=corpus.name,
+                )
+            ],
+            text=query_text,
+            rag_retrieval_config=rag_retrieval_config,
     )
-    
-    response = rag.retrieval_query(
-        rag_resources=[
-            rag.RagResource(
-                rag_corpus=corpus.name,
-            )
-        ],
-        text=query_text,
-        rag_retrieval_config=rag_retrieval_config,
-)
 
-    if response and response.contexts and response.contexts.contexts:
-        for i, ctx in enumerate(response.contexts.contexts):
-            print(f"  Result {i+1} (score: {ctx.score:.3f}): {ctx.text[:100]}...")
-    else:
-        print("  No results — corpus may still be indexing. Try again in a few minutes.")
+        if response and response.contexts and response.contexts.contexts:
+            for i, ctx in enumerate(response.contexts.contexts):
+                print(f"  Result {i+1} (score: {ctx.score:.3f}): {ctx.text[:100]}...")
+        else:
+            print("  No results — corpus may still be indexing. Try again in a few minutes.")
+    except Exception as e:
+        print("Error while testing Rag Query - {e}")
 
 #------------------------------------------------------------------------------------#
 # Load data
@@ -151,9 +162,18 @@ def load(parser: YAMLParser) -> None:
     print("\nStep 1: Creating RAG corpus...")
     corpus:rag.Corpus = create_corpus(parser) 
 
+    if not corpus:
+        print("Unable to proceed without a RAG corpus")
+        return
+    
     # Ingest files
     print("\nStep 2: Ingesting files...")
-    ingest_files(parser, corpus)
+    ingest_response = ingest_files(parser, corpus)
+
+    if not ingest_response:
+        print("Unable to proceed without ingesting data in to the RAG corpus")
+        return
+    
 
 
     # Wait a moment for indexing

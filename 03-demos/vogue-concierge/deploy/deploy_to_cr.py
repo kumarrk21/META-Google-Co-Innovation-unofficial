@@ -6,6 +6,9 @@ from yaml_parser import YAMLParser
 AUTH_RESULT_FILE = 'cr_auth_result.txt'
 AUTH_PROCESS = 'Giving cloud run service account required roles'
 
+CE_AUTH_RESULT_FILE = 'ce_auth_result.txt'
+CE_AUTH_PROCESS = 'Giving compute engine service account required roles'
+
 
 # ----------------------------------------------------- #
 # Deploy to the App (API + UI) to CloudRun
@@ -31,7 +34,7 @@ def deploy(parser: YAMLParser) -> None:
     url = utils.get_cloud_run_url(deployment_result_file)
 
     if url:
-        parser.deployed_resources["cloud_run_service"] = {parser.API_NAME}
+        parser.deployed_resources["cloud_run_service"] = f"{parser.API_NAME}"
         parser.deployed_resources["cloud_run_url"] = url
         parser.setResources()
 
@@ -50,7 +53,28 @@ def update_cr_sa_auth(parser: YAMLParser) -> None:
 
     command = format("\n".join(commands))
     
-    utils.call_cli(command,AUTH_RESULT_FILE,AUTH_PROCESS)
+    auth_result_file = f"{parser.DEPLOY_RESULTS_FOLDER}/{AUTH_RESULT_FILE}"
+
+    utils.call_cli(command,auth_result_file,AUTH_PROCESS)
+
+# ----------------------------------------------------- #
+# Update auth for the compute service accuont
+# ----------------------------------------------------- #
+def update_ce_sa_auth(parser: YAMLParser) -> None:
+
+    project_id = parser.PROJECT_ID
+    compute_engine_sa = parser.COMPUTE_ENGINE_SA
+    required_auth = parser.required_auth['compute_engine_sa']
+
+    commands = []
+    for role in required_auth:
+        commands.append(f'gcloud projects add-iam-policy-binding {project_id} --member="serviceAccount:{compute_engine_sa}" --role="{role}" --no-user-output-enabled')
+
+    command = format("\n".join(commands))
+
+    auth_result_file = f"{parser.DEPLOY_RESULTS_FOLDER}/{AUTH_RESULT_FILE}"
+    
+    utils.call_cli(command,CE_AUTH_RESULT_FILE,CE_AUTH_PROCESS)
 
 
 

@@ -9,4 +9,8 @@ cloud_run_sa:
   - roles/bigquery.jobUser
   - roles/storage.objectViewer
   - roles/iam.serviceAccountTokenCreator
+compute_engine_sa:
+  - roles/storage.objectViewer
+  - roles/logging.logWriter
+  - roles/artifactregistry.writer
 

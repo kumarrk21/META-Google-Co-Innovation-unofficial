@@ -19,11 +19,12 @@ agent:
   datastores:
     bq:
       dataset_id: vogue_concierge
-      dataset_desc: "Vogue Concierge AI Boutique \u2014 inventory and loyalty data"
+      dataset_desc: Vogue Concierge AI Boutique inventory and loyalty data
       dataset_location: US
       inventory_table_name: inventory
       loyalty_table_name: loyalty
     imagegen:
+      use: 'FALSE'
       model_id: imagen-3.0-generate-002
       region: us-central1
     storage:
@@ -38,7 +39,7 @@ agent:
     rag:
       region: us-west1
       corpus_name: vogue-concierge-catalog
-      corpus_desc: "Vogue Concierge AI Boutique \u2014 product catalog and trend data"
+      corpus_desc: Vogue Concierge AI Boutique product catalog and trend data
 api:
   name: vogue-concierge-app
   folder: vogue_concierge_app/backend
