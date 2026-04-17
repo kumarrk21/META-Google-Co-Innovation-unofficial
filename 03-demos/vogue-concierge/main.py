@@ -4,7 +4,7 @@ import argparse
 from regex import P
 import utils
 from yaml_parser import YAMLParser
-from deploy import load_data, deploy_to_ae, deploy_to_cr
+from deploy import load_data, deploy_to_ae, deploy_to_cr, delete_resources
 from tests import test_agent, test_app
 
 
@@ -41,12 +41,15 @@ def process(option:str) -> None:
         case "8": # Test the app + agent remote
             test_app.main(parser=parser,target='remote')
             pass
-        case "9": # Proxy Cloud run locall
-            utils.proxy_cloud_run_locally(parser=parser)
-            pass
-        case "10": # List deployed resources
+        case "9": # List deployed resources
             utils.list_deployed_resources(parser=parser)
             pass
+        case "10": # Proxy Cloud run local
+            utils.proxy_cloud_run_locally(parser=parser)
+            pass
+        case "99": # Delete deployed resources
+            delete_resources.main(parser=parser)
+            pass    
         case _:
             print("You have chosen an option that is not available. Please choose from available options")
             pass    
@@ -57,7 +60,7 @@ def process(option:str) -> None:
 def main() -> None:
     # Arg Parser
     parser = argparse.ArgumentParser(description = "Demo Deployment helper")
-    available_options = ["1","2","3","4","5","6","7","8","9","10"]
+    available_options = ["1","2","3","4","5","6","7","8","9","10","99"]
 
     parser.add_argument(
         "-o", "--option", help="What do you want to deploy",
@@ -79,8 +82,9 @@ def main() -> None:
                 "   6 - test agent deployed to agent engine\n"
                 "   7 - test app locally with local agent\n"
                 "   8 - test app locally with agent engine agent\n"
-                "   9 - proxy to Cloudrun app locally\n"
-                "   10 - list deployed resources\n"
+                "   9 - list deployed resources\n"
+                "   10 - proxy to Cloudrun app locally\n"
+                "   99 - delete deployed resource\n"
                 "Selection: "
             ).strip()
             

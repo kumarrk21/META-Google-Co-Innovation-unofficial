@@ -1,0 +1,9 @@
+- compute.googleapis.com
+- storage.googleapis.com
+- bigquery.googleapis.com
+- aiplatform.googleapis.com
+- discoveryengine.googleapis.com
+- cloudbuild.googleapis.com
+- run.googleapis.com
+- cloudfunctions.googleapis.com
+- iap.googleapis.com

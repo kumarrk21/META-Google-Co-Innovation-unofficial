@@ -9,7 +9,7 @@ agent_engine:
   region: us-central1
 cloud_run:
   region: us-central1
-  use_iap: 'FALSE'
+  use_iap: 'TRUE'
 agent:
   name: VogueConciergeAgent
   use_vertexai: 'TRUE'

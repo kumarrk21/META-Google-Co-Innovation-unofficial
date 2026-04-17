@@ -3991,6 +3991,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "argparse" },
+    { name = "colorama" },
     { name = "google-adk", extra = ["extensions"] },
     { name = "honcho" },
     { name = "pillow" },
@@ -4002,6 +4003,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "argparse", specifier = ">=1.4.0" },
+    { name = "colorama", specifier = ">=0.4.6" },
     { name = "google-adk", extras = ["extensions"], specifier = ">=1.29.0" },
     { name = "honcho", specifier = ">=2.0.0" },
     { name = "pillow", specifier = ">=12.2.0" },

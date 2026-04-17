@@ -31,6 +31,7 @@ def deploy(parser: YAMLParser) -> None:
     url = utils.get_cloud_run_url(deployment_result_file)
 
     if url:
+        parser.deployed_resources["cloud_run_service"] = {parser.API_NAME}
         parser.deployed_resources["cloud_run_url"] = url
         parser.setResources()
 

@@ -10,6 +10,7 @@ from regex import P
 from yaml_parser import YAMLParser
 
 SPA_BUILD_RESULTS_FILE = 'spa_build_result.txt'
+APIS_ENABLE_RESULTS_FILE = 'apis_enable_result.txt'
 
 #---------------------------------------------------#
 # Initialize project
@@ -31,6 +32,18 @@ def init(parser: YAMLParser)-> None:
     # Update environment file for Agent
     write_agent_env_file(parser)
 
+    # Enable required APIs
+    enable_required_apis(parser)
+
+
+#---------------------------------------------------#
+# Deploy reuired APIs
+#---------------------------------------------------#
+def enable_required_apis(parser: YAMLParser) -> None:
+    command = f"gcloud services enable {" ".join([f"{api}" for api in parser.required_apis])}"
+    call_cli(command, f"{parser.DEPLOY_RESULTS_FOLDER}/{APIS_ENABLE_RESULTS_FILE}", "Enabling required APIs" )
+    
+
 #---------------------------------------------------#
 # Update environment file for API
 #---------------------------------------------------#
@@ -38,9 +51,7 @@ def write_api_env_file(parser: YAMLParser) -> None:
     # Write .env file for the API
     dir_path = os.path.dirname(os.path.realpath(__file__))
     env_file = f"{dir_path}/{parser.API_FOLDER}/.env"     
-
-    deployment_result_file = f"{parser.DEPLOY_RESULTS_FOLDER}/{parser.AE_DEPLOY_RESULTS_FILE}"
-    ae_id = get_agent_engine_id(parser.PROJECT_NUMBER, parser.AGENT_ENGINE_REGION, deployment_result_file)
+    ae_id = get_agent_engine_id(parser)
     
     with open(env_file, 'w') as f:
         write_variable(f,"APP_NAME",parser.AGENT_FOLDER)
@@ -114,7 +125,11 @@ def write_agent_env_file(parser: YAMLParser) -> None:
 # ----------------------------------------------------- #
 # Get Agent Engine ID
 # ----------------------------------------------------- #
-def get_agent_engine_id(project_number: str, region: str, deployment_result_file:str) -> str|None:
+def get_agent_engine_id(parser: YAMLParser) -> str|None:
+    project_number = parser.PROJECT_NUMBER
+    region = parser.AGENT_ENGINE_REGION
+    deployment_result_file = f"{parser.DEPLOY_RESULTS_FOLDER}/{parser.AE_DEPLOY_RESULTS_FILE}"
+
     pattern = f"Created agent engine: projects/{project_number}/locations/{region}/reasoningEngines/"
     ae_id = get_data_from_output(deployment_result_file, pattern)
     if not ae_id:
@@ -231,7 +246,7 @@ def run_command_live(command:str, store_result: bool = True) -> LiteralString:
 #---------------------------------------------------#
 def call_cli(command: str, output_file: str, process: str, store_result: bool = True) -> None:
     print('---------------------------')
-    print(f'{process} beings...')
+    print(f'{process} begins...')
     print('Executing Command...')
     print(command)
     print('---------------------------')

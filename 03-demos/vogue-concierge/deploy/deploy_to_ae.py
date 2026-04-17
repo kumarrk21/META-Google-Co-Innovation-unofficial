@@ -43,8 +43,8 @@ def deploy(parser: YAMLParser) -> None:
 
     utils.call_cli(command,deployment_result_file,DEPLOYMENT_PROCESS)
 
-    ae_id = utils.get_agent_engine_id(project_number, region, deployment_result_file)
-    
+    ae_id = utils.get_agent_engine_id(parser)
+
 
     if ae_id:
         parser.deployed_resources["agent_engine_id"] = ae_id

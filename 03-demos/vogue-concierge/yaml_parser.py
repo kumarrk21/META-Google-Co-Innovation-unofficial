@@ -4,7 +4,7 @@ import yaml
 
 
 CONFIG_FILE = 'config.yml'
-LOCAL_CONFIG_FILE = 'local/config.yml'
+# LOCAL_CONFIG_FILE = 'local/config.yml'
 
 # ----------------------------------------------------- #
 # YAML parser
@@ -13,8 +13,10 @@ class YAMLParser:
     def __init__(self):
 
         self.DEPLOY_FOLDER = "deploy"
+        self.LOCAL_FOLDER = "local"
         self.DEPLOYED_RESOURCES_FILE = "deployed_resources.yml"
         self.REQUIRED_AUTH_FILE = "required_auth.yml"
+        self.REQUIRED_APIS_FILE = "required_apis.yml"
 
         self.DEPLOY_RESULTS_FOLDER = "local/deploy_results"
         self.AE_DEPLOY_RESULTS_FILE = "ae_deployment_result.txt"
@@ -35,6 +37,9 @@ class YAMLParser:
 
         self.required_auth_file_path = Path(self._get_auth_file())    
         self.required_auth = self._load_yaml(self.required_auth_file_path)
+
+        self.required_apis_file_path = Path(self._get_apis_file())
+        self.required_apis = self._load_yaml(self.required_apis_file_path)
 
         # Store config values as variables for centralized access
         self.PROJECT_ID = self._getConfig('global.project_id')
@@ -80,7 +85,7 @@ class YAMLParser:
         
     def _get_config_file(self) -> str:
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        local_config_file = f"{dir_path}/{LOCAL_CONFIG_FILE}"
+        local_config_file = f"{dir_path}/{self.LOCAL_FOLDER}/{CONFIG_FILE}"
         config_file = f"{dir_path}/{CONFIG_FILE}"
         
         if Path(local_config_file).exists():
@@ -89,11 +94,15 @@ class YAMLParser:
     
     def _get_resources_file(self) -> str:
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        return f"{dir_path}/{self.DEPLOY_FOLDER}/{self.DEPLOYED_RESOURCES_FILE}"
+        return f"{dir_path}/{self.LOCAL_FOLDER}/{self.DEPLOYED_RESOURCES_FILE}"
     
     def _get_auth_file(self) -> str:
         dir_path = os.path.dirname(os.path.realpath(__file__))
         return f"{dir_path}/{self.DEPLOY_FOLDER}/{self.REQUIRED_AUTH_FILE}"
+    
+    def _get_apis_file(self) -> str:
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        return f"{dir_path}/{self.DEPLOY_FOLDER}/{self.REQUIRED_APIS_FILE}"
         
 
     def _load_yaml(self, file_path) -> dict:
