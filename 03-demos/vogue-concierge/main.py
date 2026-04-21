@@ -1,9 +1,29 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Main script for deploying and managing the Vogue Concierge demo application.
+
+This script provides command-line options to initialize the project,
+load data, deploy agents to Agent Engine, deploy the web application to Cloud Run,
+run various tests, list deployed resources, and delete resources.
+"""
 import os
 import argparse
 
 from regex import P
 import utils
-from yaml_parser import YAMLParser
+from config import get_parser
 from deploy import load_data, deploy_to_ae, deploy_to_cr, delete_resources
 from tests import test_agent, test_app
 
@@ -12,46 +32,58 @@ from tests import test_agent, test_app
 # Process the options
 # ----------------------------------------------------- #
 def process(option:str) -> None:
+    """Processes the selected option.
 
-    parser = YAMLParser()
+    :param option: The selected option as a string.
+    :type option: str
+    """
+
+    parser = get_parser()
     
     match option:
-        case "1":
+        case "init":
             utils.init(parser)
             pass        
-        case "2":  # Load all data
+        case "load-data":
             load_data.load(parser)
-        case "3":  # Deploy Agent to Agent Engine
+        case "deploy-agent":
             utils.write_agent_env_file(parser)
             deploy_to_ae.update_ae_sa_auth(parser)
             deploy_to_ae.deploy(parser)
-        case "4":  # Deploy app to CloudRun
+        case "deploy-app":
             deploy_to_cr.update_cr_sa_auth(parser=parser)
             deploy_to_cr.update_ce_sa_auth(parser=parser)
             deploy_to_cr.deploy(parser=parser)
             pass
-        case "5":  # Test just the agent locally
-            test_agent.main(parser=parser,target='local')
+        case "test-agent-local":
+            test_agent.main(
+                project_id=parser.PROJECT_ID,
+                agent_engine_region=parser.AGENT_ENGINE_REGION,
+                agent_engine_id=parser.getResources("agent_engine_id"),
+                target='local'
+            )
             pass
-        case "6": # Test the agent deployed to agent engine
-            test_agent.main(parser=parser,target='ae')
+        case "test-agent-remote":
+            test_agent.main(
+                project_id=parser.PROJECT_ID,
+                agent_engine_region=parser.AGENT_ENGINE_REGION,
+                agent_engine_id=parser.getResources("agent_engine_id"),
+                target='ae'
+            )
             pass
-        case "7": # Test the app + agent locally
-            test_app.main(parser=parser,target='local')
+        case "test-app-local":
+            test_app.main(target='local')
             pass
-        case "8": # Test the app + agent remote
-            test_app.main(parser=parser,target='remote')
+        case "test-app-remote":
+            test_app.main(target='remote')
             pass
-        case "9": # List deployed resources
+        case "list-resources":
             utils.list_deployed_resources(parser=parser)
             pass
-        case "10": # Proxy Cloud run local
+        case "proxy-cloud-run":
             utils.proxy_cloud_run_locally(parser=parser)
             pass
-        case "98": # debug purposes
-            print(parser.API_NAME)
-            pass
-        case "99": # Delete deployed resources
+        case "delete-resources":
             delete_resources.main(parser=parser)
             pass    
         case _:
@@ -62,39 +94,52 @@ def process(option:str) -> None:
 # Main function
 # ----------------------------------------------------- #
 def main() -> None:
+    """Main function to parse arguments and execute the selected option."""
     # Arg Parser
     parser = argparse.ArgumentParser(description = "Demo Deployment helper")
-    available_options = ["1","2","3","4","5","6","7","8","9","10","98","99"]
+    available_options = [
+        "init",
+        "load-data",
+        "deploy-agent",
+        "deploy-app",
+        "test-agent-local",
+        "test-agent-remote",
+        "test-app-local",
+        "test-app-remote",
+        "list-resources",
+        "proxy-cloud-run",
+        "delete-resources",
+    ]
 
     parser.add_argument(
-        "-o", "--option", help="What do you want to deploy",
+        "-o", "--option", help="What do you want to do?",
         choices = available_options
         )
 
     args = parser.parse_args()
 
     option = args.option
-    if str(option) not in available_options :
+    if option not in available_options :
         while True:
             option = input(
                 "What do you want to do?:\n"
-                "   1 - initialize\n"
-                "   2 - load data\n"
-                "   3 - deploy agent to agent engine\n"
-                "   4 - deploy app to cloud run\n"
-                "   5 - test agent locally\n"
-                "   6 - test agent deployed to agent engine\n"
-                "   7 - test app locally with local agent\n"
-                "   8 - test app locally with agent engine agent\n"
-                "   9 - list deployed resources\n"
-                "   10 - proxy to Cloudrun app locally\n"
-                "   99 - delete deployed resource\n"
+                "   init - initialize\n"
+                "   load-data - load data\n"
+                "   deploy-agent - deploy agent to agent engine\n"
+                "   deploy-app - deploy app to cloud run\n"
+                "   test-agent-local - test agent locally\n"
+                "   test-agent-remote - test agent deployed to agent engine\n"
+                "   test-app-local - test app locally with local agent\n"
+                "   test-app-remote - test app locally with agent engine agent\n"
+                "   list-resources - list deployed resources\n"
+                "   proxy-cloud-run - proxy to Cloudrun app locally\n"
+                "   delete-resources - delete deployed resource\n"
                 "Selection: "
             ).strip()
             
             if option in available_options:
                 break
-            print("\n[!] Choose a valid option from the list (1-10)")
+            print("\n[!] Choose a valid option from the list")
 
     print(f"Proceeding with option: {option}")
 

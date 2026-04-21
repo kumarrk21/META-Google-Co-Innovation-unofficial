@@ -125,7 +125,12 @@ Make sure you are in the **META-Google-Co-Innovation/03-demos/vogue-concierge** 
 | global: cloud\_run\_sa | Service account that you created for Cloud run in the pre-requisites section. It is a good practice to use a dedicated service account for your Cloud Run services (rather than using the default compute engine service account) so that you can fine tune the resource access Don’t worry about the IAM access roles for now, we have provided a tool to automate this (more later) | Yes, required |
 | global: region | The region where resources will be deployed unless otherwise overridden at resource level | Yes, required |
 | vertexai: region | The region where your LLM is hosted on VertexAI. For example, Llama4 MaaS is available in us-east5 or Llama3.3 MaaS is available in us-central1. Please refer to this [link](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#genai-open-models) to know which region is MaaS supported for your model choice | Yes, required |
-| **The following fields are optional \- you can keep the values as-is if it works for you** |  |  |
+
+<br>
+
+**The following fields are optional \- you can keep the values as-is if it works for you**
+| Field | Purpose | Is an update required? |
+| :---- | :---- | :---- |
 | agent\_engine: region | The region where Agent Engine resource will be deployed  | No, optional |
 | cloud\_run: region | The region where Cloud run service will be deployed | No, optional |
 | cloud\_run: use\_iap | This flag controls if the deployed Cloud Run supports Identity Aware Proxy (IAP). We recommend keeping this as ‘TRUE’. Change it to ‘FALSE’ if you don’t want to use IAP | No, optional |
@@ -147,7 +152,13 @@ Make sure you are in the **META-Google-Co-Innovation/03-demos/vogue-concierge** 
 | api: name | Cloud Run service name | No, optional |
 | api: local\_port | The local port where the web app will be available when testing locally. Change this only if the port number 8080 is not available | No, optional |
 | api: remote\_port | The port where the Cloud Run service will be available. Change this only if you strongly feel about changing the default 8080 port for Cloud Run | No, optional |
-| **Don’t change the values for the following fields** |  |  |
+
+
+**Don’t change the values for the following fields**
+
+
+| Field | Purpose | Is an update required? |
+| :---- | :---- | :---- |
 | agent: use\_vertexai | Keep this “TRUE” as Llama models are available only on VertexAI. | Don’t update |
 | agent: google\_api\_key | Leave it as-is. Maybe used in future | Don’t update |
 | agent: folder | Leave it as-is. This is the folder where the ADK agent code resides | Don’t update |
@@ -181,7 +192,7 @@ uv sync
 # - Creates/Update .env file used by the Web app
 # - Creates/Update .env file used by the agent
 # - Enables required APIs in your Google Cloud project if you missed something in the pre-requisites
-uv run main.py -o 1
+uv run main.py -o init
 ```
 
 #### **\#4: Load Data**
@@ -191,7 +202,7 @@ This step creates Google Cloud Storage Buckets, BigQuery dataset/tables and RAG 
 ```shell
 
 # Create required resources and load demo data
-uv run main.py -o 2
+uv run main.py -o load-data
 ```
 
 Once the required data is created, you can quickly test the agent using the out of the box UI available with ADK
@@ -219,7 +230,7 @@ In this step, you will deploy the agent to the agent engine. Also, this step aut
 ```shell
 
 # Deploy agent to Agent Engine
-uv run main.py -o 3
+uv run main.py -o deploy-agent
 ```
 
 #### **\#6: Deploy the web app to Cloud Run**
@@ -239,7 +250,7 @@ Further, since Cloud Build is used to deploy the Cloud Run service, this step al
 ```shell
 
 # Deploy web app to Cloud Run
-uv run main.py -o 4
+uv run main.py -o deploy-app
 ```
 
 #### **\#7: Test the agent locally**
@@ -249,7 +260,7 @@ In this step, you can test the agent locally
 ```shell
 
 # Test the agent locally
-uv run main.py -o 5
+uv run main.py -o test-agent-local
 ```
 
 #### **\#8: Test the Agent Engine Agent**
@@ -259,7 +270,7 @@ In this step, you can test the remote agent that is deployed on Agent Engine
 ```shell
 
 # Test the agent locally
-uv run main.py -o 6
+uv run main.py -o test-agent-remote
 ```
 
 #### **\#9: Test the web app and agent locally** 
@@ -269,7 +280,7 @@ In this step, you can test the web app along with an agent instance running loca
 ```shell
 
 # Test the agent locally
-uv run main.py -o 7
+uv run main.py -o test-app-local
 ```
 
 Once the web app and agent starts locally, navigate to [http://localhost:8080](http://localhost:8080) to access the agent UI. Try a few prompts to see how the agent responds.
@@ -296,7 +307,7 @@ In this step, you can run the web app locally but test accessing the remote agen
 ```shell
 
 # Test the agent locally
-uv run main.py -o 8
+uv run main.py -o test-app-remote
 ```
 
 Once the web app and agent starts locally, navigate to [http://localhost:8080](http://localhost:8080) to access the agent UI. Try a few prompts to see how the agent responds.
@@ -308,7 +319,7 @@ In this step you can list all the deployed resources. Specifically you can get t
 ```shell
 
 # List deployed resources 
-uv run main.py -o 9
+uv run main.py -o list-resources
 ```
 
 #### **\#12: Test the Cloud Run app**
@@ -319,10 +330,9 @@ Alternatively, you can [disable IAP](https://docs.cloud.google.com/run/docs/secu
 ```shell
 
 # List deployed resources 
-uv run main.py -o 10
+uv run main.py -o proxy-cloud-run
 ```
 
 # **4\. Troubleshooting**
 
 #TODO: Troubleshooting guidance
-

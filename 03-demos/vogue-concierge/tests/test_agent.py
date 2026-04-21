@@ -1,3 +1,17 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """
 Test Agent — Vogue Concierge
 ================================
@@ -117,6 +131,7 @@ def test_fallback_tools():
 # Local test
 # ----------------------------------------------------- #
 def test_local() -> None:
+    """Runs all the local tests."""
     print("=" * 60)
     print("Vogue Concierge — Agent Tests")
     print("=" * 60)
@@ -139,6 +154,15 @@ def test_local() -> None:
 # Agent Engine test
 # ----------------------------------------------------- #
 async def test_ae(project_id: str, agent_engine_region: str, agent_engine_id: str) -> None:
+    """Tests the agent deployed to Agent Engine.
+
+    :param project_id: The Google Cloud project ID.
+    :type project_id: str
+    :param agent_engine_region: The region of the Agent Engine.
+    :type agent_engine_region: str
+    :param agent_engine_id: The ID of the Agent Engine.
+    :type agent_engine_id: str
+    """
     client = vertexai.Client(  # For service interactions via client.agent_engines
         project=project_id,
         location=agent_engine_region,
@@ -168,17 +192,13 @@ async def test_ae(project_id: str, agent_engine_region: str, agent_engine_id: st
 # ----------------------------------------------------- #
 # Main function
 # ----------------------------------------------------- #
-def main(parser: YAMLParser, target:str) -> None:
-    project_id = parser.PROJECT_ID
-    agent_engine_region =  parser.AGENT_ENGINE_REGION
-    agent_engine_id = parser.getResources("agent_engine_id")
-
+def main(project_id: str, agent_engine_region: str, agent_engine_id: str, target: str) -> None:
     match target:
         case "local":
             test_local()
             pass
-        case "ae": #test agent engine
-            asyncio.run(test_ae(project_id, agent_engine_region,agent_engine_id))  
+        case "ae":  # test agent engine
+            asyncio.run(test_ae(project_id, agent_engine_region, agent_engine_id))
             pass
         case _:
             pass

@@ -1,3 +1,17 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 from pathlib import Path
 import yaml
@@ -10,7 +24,10 @@ CONFIG_FILE = 'config.yml'
 # YAML parser
 # ----------------------------------------------------- #
 class YAMLParser:
+    """Parses YAML configuration and deployed resources files."""
+
     def __init__(self):
+        """Initializes the YAMLParser by loading configuration and deployed resources."""
 
         self.DEPLOY_FOLDER = "deploy"
         self.LOCAL_FOLDER = "local"
@@ -87,7 +104,17 @@ class YAMLParser:
         self.CLOUD_RUN_USE_IAP = self._getConfig('cloud_run.use_iap')
     
         
+    #---------------------------------------------------#
+    # Get Config File
+    #---------------------------------------------------#
     def _get_config_file(self) -> str:
+        """Determines the path to the configuration file.
+
+        It checks for a local config file first, then falls back to the default.
+
+        :return: The path to the configuration file.
+        :rtype: str
+        """
         dir_path = os.path.dirname(os.path.realpath(__file__))
         local_config_file = f"{dir_path}/{self.LOCAL_FOLDER}/{CONFIG_FILE}"
         config_file = f"{dir_path}/{CONFIG_FILE}"
@@ -96,27 +123,74 @@ class YAMLParser:
             return local_config_file
         return config_file
     
+    #---------------------------------------------------#
+    # Get Resources File
+    #---------------------------------------------------#
     def _get_resources_file(self) -> str:
+        """Determines the path to the deployed resources file.
+
+        :return: The path to the deployed resources file.
+        :rtype: str
+        """
         dir_path = os.path.dirname(os.path.realpath(__file__))
         return f"{dir_path}/{self.LOCAL_FOLDER}/{self.DEPLOYED_RESOURCES_FILE}"
     
+    #---------------------------------------------------#
+    # Get Auth File
+    #---------------------------------------------------#
     def _get_auth_file(self) -> str:
+        """Determines the path to the required authentication file.
+
+        :return: The path to the required authentication file.
+        :rtype: str
+        """
         dir_path = os.path.dirname(os.path.realpath(__file__))
         return f"{dir_path}/{self.DEPLOY_FOLDER}/{self.REQUIRED_AUTH_FILE}"
     
+    #---------------------------------------------------#
+    # Get APIs File
+    #---------------------------------------------------#
     def _get_apis_file(self) -> str:
+        """Determines the path to the required APIs file.
+
+        :return: The path to the required APIs file.
+        :rtype: str
+        """
         dir_path = os.path.dirname(os.path.realpath(__file__))
         return f"{dir_path}/{self.DEPLOY_FOLDER}/{self.REQUIRED_APIS_FILE}"
         
-
+    #---------------------------------------------------#
+    # Load YAML File
+    #---------------------------------------------------#
     def _load_yaml(self, file_path) -> dict:
+        """Loads a YAML file from the given path.
+
+        :param file_path: The path to the YAML file.
+        :type file_path: Path
+        :raises FileNotFoundError: If the YAML file does not exist.
+        :return: The content of the YAML file as a dictionary.
+        :rtype: dict
+        """
         if not file_path.exists():
             raise FileNotFoundError(f"Yaml file not found: {file_path}")
         
         with file_path.open('r') as file:
             return yaml.safe_load(file) or {}
 
+    #---------------------------------------------------#
+    # Get value from nested dictionary
+    #---------------------------------------------------#
     def _get(self, data: dict, key_path: str, default):
+        """Retrieves a value from a nested dictionary using a dot-separated key path.
+
+        :param data: The dictionary to search within.
+        :type data: dict
+        :param key_path: The dot-separated path to the desired key (e.g., "global.project_id").
+        :type key_path: str
+        :param default: The default value to return if the key path is not found.
+        :return: The value at the specified key path, or the default value.
+        :rtype: Any
+        """
         keys = key_path.split('.')
         value = data
         try:
@@ -126,19 +200,53 @@ class YAMLParser:
         except (KeyError, TypeError):
             return default 
 
+    #---------------------------------------------------#
+    # Get Config Value
+    #---------------------------------------------------#
     def _getConfig(self, key_path: str, default=None):
+        """Retrieves a configuration value from the loaded config.
+
+        :param key_path: The dot-separated path to the desired configuration key.
+        :type key_path: str
+        :param default: The default value to return if the key path is not found.
+        :return: The configuration value, or the default value.
+        :rtype: Any
+        """
         return self._get(self.config, key_path, default)
     
+    #---------------------------------------------------#
+    # Initialize Config
+    #---------------------------------------------------#
     def initConfig(self, new_config:dict):
+        """Initializes or updates the configuration file with new settings.
+
+        :param new_config: The new configuration dictionary to write.
+        :type new_config: dict
+        """
         dir_path = os.path.dirname(os.path.realpath(__file__))
         config_file = f"{dir_path}/{CONFIG_FILE}"
         with open(config_file, 'w') as f:
             yaml.dump(new_config,f,default_flow_style=False,sort_keys=False)
 
+    #---------------------------------------------------#
+    # Get Resources Value
+    #---------------------------------------------------#
     def getResources(self, key_path: str, default=None):
+        """Retrieves a resource value from the loaded deployed resources.
+
+        :param key_path: The dot-separated path to the desired resource key.
+        :type key_path: str
+        :param default: The default value to return if the key path is not found.
+        :return: The resource value, or the default value.
+        :rtype: Any
+        """
         return self._get(self.deployed_resources, key_path, default)
    
+    #---------------------------------------------------#
+    # Set Resources
+    #---------------------------------------------------#
     def setResources(self):
+        """Saves the current deployed resources to the resources file."""
         with open(self.deployed_resources_file_path, 'w') as f:
             yaml.dump(self.deployed_resources,f,default_flow_style=False)
 

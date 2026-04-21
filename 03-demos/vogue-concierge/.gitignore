@@ -13,3 +13,4 @@ wheels/
 local/
 .env
 .adk
+.gemini

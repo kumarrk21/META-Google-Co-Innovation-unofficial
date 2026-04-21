@@ -1,4 +1,19 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import vertexai
+from lib import shell_utils
 import utils
 from yaml_parser import YAMLParser
 from colorama import init, Fore, Style
@@ -7,6 +22,11 @@ from colorama import init, Fore, Style
 # Delete agent engine agent
 # ----------------------------------------------------- #
 def delete_agent_engine_agent(parser: YAMLParser) -> None:
+    """Deletes the agent engine agent.
+
+    :param parser: The YAMLParser object containing the project configuration.
+    :type parser: YAMLParser
+    """
     AGENT_ENGINE_ID = "agent_engine_id"
     ae_id = parser.deployed_resources.get(AGENT_ENGINE_ID, None)
     if ae_id:
@@ -31,13 +51,18 @@ def delete_agent_engine_agent(parser: YAMLParser) -> None:
 # Delete Cloud run service
 # ----------------------------------------------------- #
 def delete_cloud_run_service(parser: YAMLParser) -> None:
+    """Deletes the Cloud Run service.
+
+    :param parser: The YAMLParser object containing the project configuration.
+    :type parser: YAMLParser
+    """
     CR_SERVICE = "cloud_run_service"
     CR_URL = "cloud_run_url"
     cr_service = parser.deployed_resources.get(CR_SERVICE, None)
     cr_url = parser.deployed_resources.get(CR_URL, None)
     if cr_service:
         command = f"gcloud run services delete {cr_service} --async --region={parser.CLOUDRUN_REGION}"
-        utils.call_cli(command,"",f"Deleting Cloudrun service {cr_service}", False)
+        shell_utils.call_cli(command,"",f"Deleting Cloudrun service {cr_service}", False)
     
         parser.deployed_resources.pop(CR_SERVICE, None)    
         parser.deployed_resources.pop(CR_URL, None)    
@@ -48,6 +73,11 @@ def delete_cloud_run_service(parser: YAMLParser) -> None:
 # Main Entry
 # ----------------------------------------------------- #
 def main(parser: YAMLParser ) -> None:
+    """The main entry point for deleting resources.
+
+    :param parser: The YAMLParser object containing the project configuration.
+    :type parser: YAMLParser
+    """
     init()
     print(Style.BRIGHT + Fore.RED + "**************************************************")
     print(Style.BRIGHT + Fore.RED + "DANAGER ZONE!!!")

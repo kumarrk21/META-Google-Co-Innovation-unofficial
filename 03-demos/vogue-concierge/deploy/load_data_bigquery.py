@@ -1,3 +1,17 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 import os
 import random
@@ -125,14 +139,32 @@ def create_inventory_table(client: bigquery.Client, catalog: list, project_id: s
 #------------------------------------------------------------------------------------#
 # Setup BQ for catalog and inventory data
 #------------------------------------------------------------------------------------#
-def load(parser: YAMLParser) -> None:
+def load(
+    project_id: str,
+    dataset_id: str,
+    dataset_location: str,
+    dataset_desc: str,
+    inventory_table_name: str,
+    loyalty_table_name: str,
+    products_file_path: str,
+) -> None:
+    """Loads the catalog and inventory data into BigQuery.
 
-    project_id = parser.PROJECT_ID
-    dataset_id = parser.AGENT_DS_BQ_DATASET_ID
-    dataset_location = parser.AGENT_DS_DATASET_LOC
-    dataset_desc = parser.AGENT_DS_DATASET_DESC
-    inventory_table_name = parser.AGENT_DS_INVENTORY_TABLE_NAME
-    loyalty_table_name = parser.AGENT_DS_LOYALTY_TABLE_NAME
+    :param project_id: The Google Cloud project ID.
+    :type project_id: str
+    :param dataset_id: The BigQuery dataset ID.
+    :type dataset_id: str
+    :param dataset_location: The location of the BigQuery dataset.
+    :type dataset_location: str
+    :param dataset_desc: The description of the BigQuery dataset.
+    :type dataset_desc: str
+    :param inventory_table_name: The name of the inventory table.
+    :type inventory_table_name: str
+    :param loyalty_table_name: The name of the loyalty table.
+    :type loyalty_table_name: str
+    :param products_file_path: The path to the products JSON file.
+    :type products_file_path: str
+    """
 
     
     print("=" * 60)
@@ -140,9 +172,7 @@ def load(parser: YAMLParser) -> None:
     print("=" * 60)
 
     # Load Catalog
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    products_file = dir_path + "/data/products.json"
-    with open(products_file, 'r') as f:
+    with open(products_file_path, 'r') as f:
         catalog = json.load(f)
     
     print(f"Loaded {len(catalog)} products from catalog")
