@@ -1,7 +1,7 @@
 ![Meta Google Cloud Partnership](assets/meta-google-cloud-partnership.png)
 
 # Meta + Google Cloud: AI Co-Innovation Space
-Welcome to the official co-innovation repository for the **Meta + Google Cloud partnership**. This space is designed to showcase the deep integration between Meta’s **Llama** family of models and Google Cloud’s infrastructure.
+Welcome to the co-innovation repository for the **Meta + Google Cloud** capabilities. This space is designed to showcase the deep integration between Meta’s **Llama** family of models and Google Cloud’s infrastructure. This is NOT an official repository supported by Google Cloud.
 
 ---
 

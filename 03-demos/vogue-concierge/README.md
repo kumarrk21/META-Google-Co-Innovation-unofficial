@@ -50,7 +50,7 @@ The demo showcases the following capabilities:
 
 # **2\. Demo Video**
 
-WIP
+#TODO: Demo video
 
 # **3\. Installation**
 
@@ -324,8 +324,5 @@ uv run main.py -o 10
 
 # **4\. Troubleshooting**
 
-WIP
+#TODO: Troubleshooting guidance
 
-# 
-
-# 
