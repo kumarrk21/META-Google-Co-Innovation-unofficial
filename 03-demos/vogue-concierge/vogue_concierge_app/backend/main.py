@@ -91,13 +91,13 @@ def _get_signed_url_for_image(product: dict) -> dict:
         credentials, project_id = google.auth.default()
         
         # If the default credentials are not a service account, use impersonation
-        if not hasattr(credentials, 'service_account_email'):
-            target_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-            credentials = impersonated_credentials.Credentials(
+        # if not hasattr(credentials, 'service_account_email'):
+        target_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+        credentials = impersonated_credentials.Credentials(
                 source_credentials=credentials,
                 target_principal=CLOUD_RUN_SA,
                 target_scopes=target_scopes,
-            )
+        )
 
         storage_client = storage.Client(credentials=credentials, project=PROJECT_ID)
         bucket = storage_client.bucket(BUCKET_NAME)
